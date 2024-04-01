@@ -1,0 +1,51 @@
+import numpy as np
+
+def Linear_Max_Min(attribute):
+    MIN = min(attribute)
+    MAX = max(attribute)
+    Var = MAX - MIN
+    attribute = np.array(attribute)
+    Attribute = (attribute - MIN)/Var
+    return Attribute
+
+#Data calon mahasiswa
+data = np.array([
+    [80, 85, 90, 75],  # Calon Mahasiswa A
+    [75, 90, 85, 80],  # Calon Mahasiswa B
+    [85, 80, 70, 90],  # Calon Mahasiswa C
+    [70, 95, 75, 85],  # Calon Mahasiswa D
+    [90, 75, 80, 95]   # Calon Mahasiswa E
+])
+
+# Normalisasi matriks
+normalized_data = np.zeros_like(data, dtype=float)
+for i in range(data.shape[1]):
+    normalized_data[:, i] = Linear_Max_Min(data[:, i])
+
+# Menentukan bobot (dibuat 0.2 karena dari 4 kriteria dibagi bobot sama rata)
+weights = np.array([[0.2, 0.2, 0.2, 0.2]])
+
+# Mengalikan matriks normalisasi dengan bobot
+weighted_normalized_data = normalized_data * weights
+
+# Mencari solusi ideal positif dan negatif
+ideal_positive = np.max(weighted_normalized_data, axis=0)
+ideal_negative = np.min(weighted_normalized_data, axis=0)
+
+# Menghitung jarak Euclidean antara setiap alternatif dan solusi ideal positif/negatif
+distance_to_positive = np.sqrt(np.sum((weighted_normalized_data - ideal_positive)**2, axis=1))
+distance_to_negative = np.sqrt(np.sum((weighted_normalized_data - ideal_negative)**2, axis=1))
+
+# menghitung nilai preferensi relatif (R)
+relative_closeness = distance_to_negative / (distance_to_positive + distance_to_negative)
+
+# Menentukan calon mahasiswa terbaik
+best_candidate_index = np.argmax(relative_closeness)
+best_candidate = chr(ord('A') + best_candidate_index)
+
+# Menampilkan hasil
+print("Nilai Preferensi Relatif (R) untuk setiap calon mahasiswa:")
+for i, r in enumerate(relative_closeness):
+    print(f"Calon Mahasiswa {chr(ord('A') + i)}: {r:.4f}")
+
+print(f"\nCalon mahasiswa terbaik berdasarkan metode TOPSIS adalah: {best_candidate}")
